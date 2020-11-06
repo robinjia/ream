@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+from datetime import datetime
+import pytz
+
+from app import db, QueuedPaper, ReadPaper
+
+db.create_all()
+timestamp = datetime.now(pytz.timezone('America/Los_Angeles'))
+q1 = QueuedPaper(
+        authors='Alice', 
+        title='Towards Being Alice', 
+        venue='ICML', 
+        year=1994, 
+        priority=0,
+        url='https://icons.getbootstrap.com/icons/book/')
+r1 = ReadPaper(
+        authors='Bob',
+        title='Bobology',
+        venue='ACL',
+        year=2004,
+        date_added=timestamp,
+        status=2,
+        url='https://icons.getbootstrap.com/icons/link/',
+        note='This is about Bobology.')
+db.session.add(q1)
+db.session.add(r1)
+db.session.commit()

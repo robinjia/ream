@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<form action="/{{action}}" method="post">
+    <input type="hidden" id="paper_id" name="paper_id" value="{{paper.id}}"/>
+    <input type="hidden" id="date_added" name="date_added" value="{{paper.date_added.timestamp()}}"/>
+    <div class="form-group">
+        <label for="authors">Authors</label>
+        <input type="text" class="form-control" name="authors" id="authors" value="{{paper.authors}}">
+    </div>
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" name="title" id="title" value="{{paper.title}}">
+    </div>
+    <div class="form-group">
+        <label for="url">URL</label>
+        <input type="text" class="form-control" name="url" id="url" value="{{paper.url}}">
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="venue">Venue</label>
+            <input type="text" class="form-control" name="venue" id="venue" value="{{paper.venue}}">
+        </div>
+        <div class="form-group col-md-4">
+            <label for="year">Year</label>
+            <input type="text" class="form-control" name="year" id="year" value="{{paper.year}}">
+        </div>
+        <div class="form-group col-md-4">
+            <label for="status">Status</label>
+            <select name="status" id="status" class="form-control">
+                {% for status in statuses %} 
+                {% if loop.index0 == 0 and not paper.status or paper.status == loop.index0 %}
+                <option selected value="{{loop.index0}}">{{status}}</option>
+                {% else %}
+                <option value="{{loop.index0}}">{{status}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="note">Notes</label>
+        <textarea class="form-control" name="note" id="note" rows="5">{{paper.note if paper.note else ''}}</textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Submit</button>
+</form>
+</div>
+{% endblock %}
