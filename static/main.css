@@ -1,10 +1,11 @@
 html {
-    height: 100%
+    height: 100%;
 }
 
 body {
-    /* background-image: linear-gradient(#ccccff, #ccffcc); */
-    /* min-height: 100% */
+    background-color: white;
+    background-image: url("/static/redwoods.jpg");
+    min-height: 100%;
 }
 
 main {
@@ -12,23 +13,29 @@ main {
 }
 
 nav.navbar {
-    background-color: #002266;
+    /* border-bottom: 1px solid #c0c0c0; */
 }
 
+.navbar-brand {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+#linkbar {
+    width: 400px;
+    background-color: rgba(224, 224, 224, 0.9);
+}
 
 tr.header{
-    /* background-color: #002266; */
-    /* color: white; */
-    background-color: #e0e0e0;
+    background-color: rgba(224, 224, 224, 0.90);
     border-top: 0px;
 }
 
 tr {
     border-top: 1px solid black;
     border-bottom: 1px solid black;
+    background-color: rgba(192, 192, 192, 0.90);
 }
-
-tr.paper-row { }
 
 th:first-child {
     border-top-left-radius: 0.5rem;
@@ -50,13 +57,11 @@ a.link-title {
 
 .icon {
     padding: 0.2rem 0.4rem;
-    background-color: #ffffff;
     transition-duration: 0s;
 }
 .icon:hover, .icon:focus, .icon:active, .icon.active {
     background-color: #cceeff;
 }
-
 
 .label {
     padding: .2rem .4rem;

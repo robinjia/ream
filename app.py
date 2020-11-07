@@ -91,6 +91,25 @@ def delete_queued():
     db.session.commit()
     return flask.redirect('/')
 
+@app.route('/edit_queued/<paper_id>', methods=['get'])
+def edit_queued(paper_id):
+    paper = QueuedPaper.query.get(paper_id)
+    return flask.render_template(
+        'queued.html', paper=paper, priorities=QUEUE_PRIORITIES)
+
+@app.route('/post_edit_queued', methods=['post'])
+def post_edit_queued():
+    paper_id = int(flask.request.form['paper_id'])
+    paper = QueuedPaper.query.get(paper_id)
+    paper.authors = flask.request.form['authors']
+    paper.title = flask.request.form['title']
+    paper.venue = flask.request.form['venue']
+    paper.year = flask.request.form['year']
+    paper.priority = flask.request.form['priority']
+    paper.url = flask.request.form['url']
+    db.session.commit()
+    return flask.redirect('/')
+
 @app.route('/add_read/<paper_id>', methods=['get'])
 def add_read(paper_id):
     paper = QueuedPaper.query.get(paper_id)
@@ -116,8 +135,12 @@ def post_add_read():
     db.session.commit()
     return flask.redirect('/')
 
-@app.route('/edit_queued', methods=['post'])
-def edit_queued():
+@app.route('/delete_read', methods=['post'])
+def delete_read():
+    paper_id = int(flask.request.form['paper_id'])
+    paper = ReadPaper.query.get(paper_id)
+    db.session.delete(paper)
+    db.session.commit()
     return flask.redirect('/')
 
 @app.route('/edit_read/<paper_id>', methods=['get'])
@@ -137,15 +160,6 @@ def post_edit_read():
     paper.status = flask.request.form['status']
     paper.url = flask.request.form['url']
     paper.note = flask.request.form['note']
-    db.session.commit()
-    return flask.redirect('/')
-
-
-@app.route('/delete_read', methods=['post'])
-def delete_read():
-    paper_id = int(flask.request.form['paper_id'])
-    paper = ReadPaper.query.get(paper_id)
-    db.session.delete(paper)
     db.session.commit()
     return flask.redirect('/')
 

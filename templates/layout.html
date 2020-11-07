@@ -30,13 +30,13 @@
     </head>
     <body>
         <header>
-            <nav class="navbar navbar-dark"> 
-                <span class="navbar-brand">Ream</span>
+            <nav class="navbar navbar-dark justify-content-between"> 
+                <span class="navbar-brand ml-2">Ream</span>
                 <form class="form-inline" action="/post_add_url" method="post">
-                    <input class="form-control mr-2" name="url" placeholder="Add link" aria-label="Add link"/>
-                    <button class="btn btn-outline-success mr-2" type="submit" name="priority" value="2">Add low</button>
-                    <button class="btn btn-outline-warning mr-2" type="submit" name="priority" value="1">Add medium</button>
-                    <button class="btn btn-outline-danger" type="submit" name="priority" value="0">Add high</button>
+                    <input class="form-control mr-2" name="url" placeholder="Add link" aria-label="Add link" id="linkbar"/>
+                    <button class="btn btn-success mr-2" type="submit" name="priority" value="2">Add low</button>
+                    <button class="btn btn-warning mr-2" type="submit" name="priority" value="1">Add medium</button>
+                    <button class="btn btn-danger mr-2" type="submit" name="priority" value="0">Add high</button>
                 </form>
             </nav>
         </header>

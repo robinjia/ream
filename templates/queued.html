@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<form action="/post_edit_queued" method="post">
+    <input type="hidden" id="paper_id" name="paper_id" value="{{paper.id}}"/>
+    <input type="hidden" id="date_added" name="date_added" value="{{paper.date_added.timestamp()}}"/>
+    <div class="form-group">
+        <label for="authors">Authors</label>
+        <input type="text" class="form-control" name="authors" id="authors" value="{{paper.authors}}">
+    </div>
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" name="title" id="title" value="{{paper.title}}">
+    </div>
+    <div class="form-group">
+        <label for="url">URL</label>
+        <input type="text" class="form-control" name="url" id="url" value="{{paper.url}}">
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="venue">Venue</label>
+            <input type="text" class="form-control" name="venue" id="venue" value="{{paper.venue}}">
+        </div>
+        <div class="form-group col-md-4">
+            <label for="year">Year</label>
+            <input type="text" class="form-control" name="year" id="year" value="{{paper.year}}">
+        </div>
+        <div class="form-group col-md-4">
+            <label for="priority">Priority</label>
+            <select name="priority" id="priority" class="form-control">
+                {% for priority in priorities %} 
+                {% if paper.priority == loop.index0 %}
+                <option selected value="{{loop.index0}}">{{priority}}</option>
+                {% else %}
+                <option value="{{loop.index0}}">{{priority}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+</div>
+{% endblock %}
