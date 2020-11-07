@@ -9,16 +9,18 @@ body {
 }
 
 main {
-    padding: 1.25rem;
+    padding: 0.5rem 1.25rem;
 }
 
 nav.navbar {
+    padding: 0.75rem 1.25rem;
     /* border-bottom: 1px solid #c0c0c0; */
 }
 
 .navbar-brand {
     font-size: 1.5rem;
     line-height: 1;
+    color: white;
 }
 
 #linkbar {
@@ -27,22 +29,26 @@ nav.navbar {
 }
 
 tr.header{
-    background-color: rgba(224, 224, 224, 0.90);
+    background-color: rgba(224, 224, 224, 0.9);
     border-top: 0px;
 }
 
 tr {
     border-top: 1px solid black;
     border-bottom: 1px solid black;
-    background-color: rgba(192, 192, 192, 0.90);
+    background-color: rgba(192, 192, 192, 0.9);
+}
+
+tr.highlighted-row {
+    background-color: rgba(192, 192, 255, 0.9);
 }
 
 th:first-child {
-    border-top-left-radius: 0.5rem;
+    border-top-left-radius: 0.25rem;
 }
 
 th:last-child {
-    border-top-right-radius: 0.5rem;
+    border-top-right-radius: 0.25rem;
 }
 
 
@@ -98,4 +104,14 @@ a.link-title {
 .status-3 {
     border: 1px solid #000066;
     background-color: #99ccff;
+}
+
+form.big-form {
+    /* Matches what .row sets in index.html */
+    margin-left: -15px;
+    margin-right: -15px;
+}
+
+label {
+    color: white;
 }
