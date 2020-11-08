@@ -5,31 +5,47 @@ function Manager(queued_navigator, read_navigator) {
     this.queued_nav.init();
 
     var obj = this;
-    document.body.onkeypress = function(event) {
-        obj.key_press(event)
+    document.body.onkeydown = function(event) {
+        obj.key_down(event);
+    }
+    document.body.onkeyup = function(event) {
+        obj.key_up(event);
     }
 }
 
-Manager.prototype.key_press = function(event) {
+Manager.prototype.key_down = function(event) {
     console.log(event);
-    if (event.key == "k") {
-        this.cur_nav.up();
-    } else if (event.key == "j") {
-        this.cur_nav.down();
-    } else if (event.key == "f") {
-        this.cur_nav.open();
-    } else if (event.key == "x") {
-        this.cur_nav.delete();
-    } else if (event.key == "e") {
-        this.cur_nav.edit();
-    } else if (event.key == "Enter") {
-        this.cur_nav.read();
-    } else if (event.key == "q") {
-        this.focus_queued();
-    } else if(event.key == "r") {
-        this.focus_read();
-    } else if(event.key == "n") {
-        this.toggle_focus();
+    if (event.key == "Escape") {
+        document.activeElement.blur();
+    } else if (document.activeElement !== document.getElementById("linkbar")) {
+        // Only do these if the linkbar is not in focus
+        if (event.key == "k" || event.key == "ArrowUp") {
+            this.cur_nav.up();
+        } else if (event.key == "j" || event.key == "ArrowDown") {
+            this.cur_nav.down();
+        } else if (event.key == "f") {
+            this.cur_nav.open();
+        } else if (event.key == "x") {
+            this.cur_nav.delete();
+        } else if (event.key == "e") {
+            this.cur_nav.edit();
+        } else if (event.key == "Enter") {
+            this.cur_nav.read();
+        } else if (event.key == "q") {
+            this.focus_queued();
+        } else if(event.key == "r") {
+            this.focus_read();
+        } else if(event.key == "n") {
+            this.toggle_focus();
+        } else if(event.key == "n") {
+            this.toggle_focus();
+        }
+    }
+}
+
+Manager.prototype.key_up = function(event) {
+    if(event.key == "i") {
+        document.getElementById("linkbar").focus();
     }
 }
 
