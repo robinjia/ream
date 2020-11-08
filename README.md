@@ -24,4 +24,4 @@ Edit `config.yaml` as appropriate.
 This creates an empty database in the location specified by `config.yaml`.
 
 ## Credits
-Icons were taken from [https://primer.style/octicons/].
+Icons were taken from https://primer.style/octicons/.
