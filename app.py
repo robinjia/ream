@@ -34,30 +34,30 @@ ACL_ANTHOLOGY_REGEX = r'/anthology/([^/]*)/?'
 
 app = Flask(__name__, root_path=util.ROOT_DIR)
 config = util.load_config()
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{config["db_file"]}'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(config["db_file"])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class QueuedPaper(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    authors = db.Column(db.String(1024), nullable=False)
-    title = db.Column(db.String(1024), nullable=False)
-    venue = db.Column(db.String(1024), nullable=False)
-    year = db.Column(db.Integer, nullable=False)
+    authors = db.Column(db.String(1024))
+    title = db.Column(db.String(1024))
+    venue = db.Column(db.String(1024))
+    year = db.Column(db.Integer)
     date_added = db.Column(db.DateTime, nullable=False, default=datetime.now)
     priority = db.Column(db.Integer, nullable=False)
-    url = db.Column(db.String(1024), nullable=False)
+    url = db.Column(db.String(1024))
 
 class ReadPaper(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    authors = db.Column(db.String(1024), nullable=False)
-    title = db.Column(db.String(1024), nullable=False)
-    venue = db.Column(db.String(1024), nullable=False)
-    year = db.Column(db.Integer, nullable=False)
+    authors = db.Column(db.String(1024))
+    title = db.Column(db.String(1024))
+    venue = db.Column(db.String(1024))
+    year = db.Column(db.Integer)
     date_added = db.Column(db.DateTime, nullable=False)
     date_read = db.Column(db.DateTime, nullable=False, default=datetime.now)
     status = db.Column(db.Integer, nullable=False)
-    url = db.Column(db.String(1024), nullable=False)
+    url = db.Column(db.String(1024))
     note = db.Column(db.String(65535))
 
 def _parse_arxiv_id(url):
@@ -82,16 +82,16 @@ def _guess_venue(comment):
     if venue in VENUE_NAME_MAP:
         venue = VENUE_NAME_MAP[venue]
     if has_workshop:
-        return f'{venue} WS'
+        return '{} WS'.format(venue)
     return venue
 
 def _parse_arxiv(arxiv_id):
     metadata = {
             'authors': [],
-            'url': f'https://arxiv.org/pdf/{arxiv_id}.pdf',
+            'url': 'https://arxiv.org/pdf/{}.pdf'.format(arxiv_id),
             'venue': 'arXiv',
     }
-    with urllib.request.urlopen(f'http://export.arxiv.org/api/query?id_list={arxiv_id}') as url:
+    with urllib.request.urlopen('http://export.arxiv.org/api/query?id_list={}'.format(arxiv_id)) as url:
         r = url.read()
     tree = ElementTree.fromstring(r)
     for e in tree:
@@ -125,10 +125,10 @@ def _parse_acl_anthology_id(url):
 def _parse_acl_anthology(anthology_id):
     metadata = {
             'authors': [],
-            'url': f'https://www.aclweb.org/anthology/{anthology_id}.pdf',
+            'url': 'https://www.aclweb.org/anthology/{}.pdf'.format(anthology_id),
     }
     # Use the MODS XML format for most things
-    with urllib.request.urlopen(f'https://www.aclweb.org/anthology/{anthology_id}.xml') as url:
+    with urllib.request.urlopen('https://www.aclweb.org/anthology/{}.xml'.format(anthology_id)) as url:
         xml = url.read()
     tree = ElementTree.fromstring(xml)
     for e in tree[0]:
@@ -144,14 +144,14 @@ def _parse_acl_anthology(anthology_id):
                 name = []
                 for np in e.findall('{http://www.loc.gov/mods/v3}namePart'):
                     if len(np.text) == 1:
-                        name.append(f'{np.text}.')  # Guess that there should be a dot here
+                        name.append('{}.'.format(np.text))  # Guess that there should be a dot here
                     else:
                         name.append(np.text)
                 metadata['authors'].append(' '.join(name))
     metadata['authors'] = ', '.join(metadata['authors'])
 
     # Use the anthology main page for venue abbreviations
-    with urllib.request.urlopen(f'https://www.aclweb.org/anthology/{anthology_id}') as url:
+    with urllib.request.urlopen('https://www.aclweb.org/anthology/{}'.format(anthology_id)) as url:
         r = url.read()
     soup = BeautifulSoup(r, 'html.parser')
     links = soup.find_all('a')
@@ -238,7 +238,6 @@ def post_add_read():
     paper_id = int(flask.request.form['paper_id'])
     old_paper = QueuedPaper.query.get(paper_id)
     new_paper = ReadPaper(
-            #id=paper_id,
             authors=flask.request.form['authors'],
             title=flask.request.form['title'],
             venue=flask.request.form['venue'],
