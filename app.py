@@ -40,10 +40,10 @@ db = SQLAlchemy(app)
 
 class QueuedPaper(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    authors = db.Column(db.String(1024))
-    title = db.Column(db.String(1024))
-    venue = db.Column(db.String(1024))
-    year = db.Column(db.Integer)
+    authors = db.Column(db.String(1024), default='')
+    title = db.Column(db.String(1024), default='')
+    venue = db.Column(db.String(1024), default='')
+    year = db.Column(db.Integer, default=-1)
     date_added = db.Column(db.DateTime, nullable=False, default=datetime.now)
     priority = db.Column(db.Integer, nullable=False)
     url = db.Column(db.String(1024))
@@ -191,14 +191,17 @@ def home():
 @app.route('/post_add_url', methods=['post'])
 def post_add_url():
     priority = int(flask.request.form['priority'])
-    metadata = get_metadata(flask.request.form['url'])
+    url = flask.request.form['url']
+    metadata = get_metadata(url)
     if metadata:
         paper = QueuedPaper(priority=priority, **metadata)
         db.session.add(paper)
         db.session.commit()
         return flask.redirect('/')
-    # TODO: error handling
-    return flask.redirect('/')
+    paper = QueuedPaper(priority=priority, url=url)
+    db.session.add(paper)
+    db.session.commit()
+    return flask.redirect('/edit_queued/{}'.format(paper.id))
 
 @app.route('/delete_queued', methods=['post'])
 def delete_queued():
