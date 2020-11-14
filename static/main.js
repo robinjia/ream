@@ -86,9 +86,7 @@ TableNavigator.prototype.init = function(manager, focus_func) {
     function create_onclick(i) {
         return function() {
             focus_func();
-            obj.mark(obj.index, false);
-            obj.index = i;
-            obj.mark(obj.index, true)
+            obj.focus_and_mark(i);
         }
     }
     for (var i = 1; i < this.tbody.children.length; i++) {
@@ -100,6 +98,23 @@ TableNavigator.prototype.mark = function(index, focus) {
     var row = this.tbody.children[index];
     if (focus) {
         row.classList.add("highlighted-row");
+        var rect = row.getBoundingClientRect();
+        console.log(rect)
+        if (rect.bottom > window.innerHeight) {
+            // Scroll down
+            row.scrollIntoView(false);
+        } else if (rect.top < 0) {
+            if (window.scrollY + rect.top < 200) {
+                // Just scroll to top of page
+                window.scrollTo(window.scrollX, 0);
+            } else if (index == 1) {
+                // Scroll to the top of the table
+                this.tbody.children[0].scrollIntoView(true);
+            } else {
+                // Scroll up
+                row.scrollIntoView(true);
+            }
+        }
     } else {
         row.classList.remove("highlighted-row");
     }
@@ -109,19 +124,21 @@ TableNavigator.prototype.set_focus = function(focus) {
     this.mark(this.index, focus)
 }
 
+TableNavigator.prototype.focus_and_mark = function(index) {
+    this.mark(this.index, false)
+    this.index = index;
+    this.mark(this.index, true)
+}
+
 TableNavigator.prototype.up = function() { 
     // Start at 1 because of the header row
     if (this.index > 1) {
-        this.mark(this.index, false)
-        this.index -= 1;
-        this.mark(this.index, true)
+        this.focus_and_mark(this.index - 1);
     }
 }
 TableNavigator.prototype.down = function() { 
     if (this.index < this.tbody.children.length - 1) {
-        this.mark(this.index, false)
-        this.index += 1;
-        this.mark(this.index, true)
+        this.focus_and_mark(this.index + 1);
     }
 }
 
