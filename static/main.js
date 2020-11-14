@@ -22,8 +22,9 @@ Manager.prototype.key_down = function(event) {
     console.log(event);
     if (event.key == "Escape") {
         document.activeElement.blur();
-    } else if (document.activeElement !== document.getElementById("linkbar")) {
-        // Only do these if the linkbar is not in focus
+    } else if (document.activeElement !== document.getElementById("linkbar")
+               && !event.ctrlKey) {
+        // Only do these if the linkbar is not in focus and control is not pressed
         if (event.key == "k" || event.key == "ArrowUp") {
             this.cur_nav.up();
         } else if (event.key == "j" || event.key == "ArrowDown") {
