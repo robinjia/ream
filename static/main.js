@@ -2,9 +2,14 @@ function Manager(queued_navigator, read_navigator) {
     this.queued_nav = queued_navigator;
     this.read_nav = read_navigator;
     this.cur_nav = queued_navigator;
-    this.queued_nav.init();
 
+    // Initialize TableNavigators
     var obj = this;
+    this.queued_nav.init(this, function() { obj.focus_queued(); });
+    this.read_nav.init(this, function() { obj.focus_read(); });
+    this.queued_nav.mark(this.queued_nav.index, true);
+
+    // Set up key events
     document.body.onkeydown = function(event) {
         obj.key_down(event);
     }
@@ -75,8 +80,19 @@ function TableNavigator(table, index) {
     this.index = index;
 }
 
-TableNavigator.prototype.init = function() {
-    this.mark(this.index, true);
+TableNavigator.prototype.init = function(manager, focus_func) {
+    var obj = this;
+    function create_onclick(i) {
+        return function() {
+            focus_func();
+            obj.mark(obj.index, false);
+            obj.index = i;
+            obj.mark(obj.index, true)
+        }
+    }
+    for (var i = 1; i < this.tbody.children.length; i++) {
+        this.tbody.children[i].onclick = create_onclick(i);
+    }
 }
 
 TableNavigator.prototype.mark = function(index, focus) { 
