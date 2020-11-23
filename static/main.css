@@ -5,6 +5,8 @@ html {
 body {
     background-color: white;
     background-image: url("/static/redwoods.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     min-height: 100%;
 }
 
