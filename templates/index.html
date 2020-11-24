@@ -41,7 +41,7 @@
             <td>{{p.venue}}</td>
             <td>{{p.year}}</td>
             <td class="text-center"><div class="label priority-{{p.priority}}">{{priorities[p.priority]}}</div></td>
-            <td style="min-width: 5rem">{{p.date_added.strftime("%b %-d, %Y")}}</td>
+            <td class="timestamp" style="min-width: 5rem" data-timestamp="{{p.date_added.timestamp() * 1000}}"></td>
         </tr>
         {% endfor %}
     </table>
@@ -84,8 +84,8 @@
             <td>{{p.venue}}</td>
             <td>{{p.year}}</td>
             <td class="text-center"><div class="label status-{{p.status}}">{{statuses[p.status]}}</div></td>
-            <td style="min-width: 5rem">{{p.date_added.strftime("%b %-d, %Y")}}</td>
-            <td style="min-width: 5rem">{{p.date_read.strftime("%b %-d, %Y")}}</td>
+            <td class="timestamp" style="min-width: 5rem" data-timestamp="{{p.date_added.timestamp() * 1000}}"></td>
+            <td class="timestamp" style="min-width: 5rem" data-timestamp="{{p.date_read.timestamp() * 1000}}"></td>
             <td>{{p.note if p.note else ''}}</td>
         </tr>
         {% endfor %}
@@ -96,6 +96,16 @@
 {% block script %}
 <script type="text/javascript">
 $(document).ready(function() {
+    // Convert UTC timestamps to local time
+    var date_elems = document.getElementsByClassName("timestamp");
+    for(var i = 0; i < date_elems.length; i++) {
+        var elem = date_elems[i];
+        var date = new Date(parseFloat(elem.dataset.timestamp));
+        console.log(date)
+        elem.innerHTML = date.toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"});
+    }
+
+    // Set up table navigation
     var queued_table = document.getElementById("queued-table");
     var read_table = document.getElementById("read-table");
     var queued_navigator = new TableNavigator(queued_table, 1);
