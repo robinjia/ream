@@ -85,8 +85,8 @@ TableNavigator.prototype.init = function(manager, focus_func) {
     var obj = this;
     function create_onclick(i) {
         return function() {
-            focus_func();
             obj.focus_and_mark(i);
+            focus_func();
         }
     }
     for (var i = 1; i < this.tbody.children.length; i++) {
