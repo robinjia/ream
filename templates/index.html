@@ -1,6 +1,32 @@
 {% extends "layout.html" %}
 
 {% block content %}
+<div class="modal fade" id="shortcutsModal" tabindex="-1" role="dialog" aria-labeledby="shortcutsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shortcutsModalLabel">Keyboard shortcuts</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul>
+                    <li> <span class="keyboard-shortcut">j/down</span>: Move down
+                    <li> <span class="keyboard-shortcut">k/up</span>: Move up
+                    <li> <span class="keyboard-shortcut">e</span>: Open link
+                    <li> <span class="keyboard-shortcut">x</span>: Delete entry
+                    <li> <span class="keyboard-shortcut">s</span>: Edit entry
+                    <li> <span class="keyboard-shortcut">f</span>: Mark queued paper as read
+                    <li> <span class="keyboard-shortcut">q</span>: Switch focus to queued papers
+                    <li> <span class="keyboard-shortcut">r</span>: Switch focus to read papers
+                    <li> <span class="keyboard-shortcut">n</span>: Toggle focus between queued and read papers
+                    <li> <span class="keyboard-shortcut">?</span>: Show keyboard shortcuts
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
     <table width="100%" id="queued-table">
         <tr class="header">

@@ -30,6 +30,12 @@ nav.navbar {
     background-color: rgba(224, 224, 224, 0.9);
 }
 
+span.keyboard-shortcut {
+    background-color: #ffffcc;
+    font-weight: bold;
+    font-family: "Courier New", Courier, monospace;
+}
+
 tr.header{
     background-color: rgba(224, 224, 224, 0.9);
     border-top: 0px;
@@ -60,7 +66,7 @@ td, th {
 
 a.link-title {
     color: black;
-	font-weight: bold;
+    font-weight: bold;
 }
 
 .icon {
@@ -69,6 +75,12 @@ a.link-title {
 }
 .icon:hover, .icon:focus, .icon:active, .icon.active {
     background-color: #cceeff;
+}
+.icon-header {
+    fill: white;
+}
+.icon-header:hover, .icon-header:active, .icon-header.active {
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .label {
