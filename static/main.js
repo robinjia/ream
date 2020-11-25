@@ -136,6 +136,16 @@ TableNavigator.prototype.focus_and_mark = function(index) {
     this.mark(this.index, true)
 }
 
+TableNavigator.prototype.focus_and_mark_by_paper_id = function(paper_id) {
+    for (var i = 1; i < this.tbody.children.length; i++) {
+        var row = this.tbody.children[i];
+        if (row.dataset.paperid == paper_id) {
+            this.focus_and_mark(i);
+            return;
+        }
+    }
+}
+
 TableNavigator.prototype.up = function() { 
     // Start at 1 because of the header row
     if (this.index > 1) {
@@ -151,7 +161,6 @@ TableNavigator.prototype.down = function() {
 TableNavigator.prototype.click_button = function(class_name) {
     var row = this.tbody.children[this.index];
     var buttons = row.getElementsByClassName(class_name);
-    console.log(buttons);
     if (buttons.length > 0) {
         buttons[0].click()
     }

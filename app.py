@@ -4,7 +4,7 @@ import argparse
 from bs4 import BeautifulSoup
 from datetime import datetime
 import flask
-from flask import Flask
+from flask import Flask, request, session
 from flask_sqlalchemy import SQLAlchemy
 import re
 import sys
@@ -34,7 +34,8 @@ ACL_ANTHOLOGY_REGEX = r'/anthology/([^/]*)/?'
 
 app = Flask(__name__, root_path=util.ROOT_DIR)
 config = util.load_config()
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(config["db_file"])
+app.config['SECRET_KEY'] = config['secret_key']
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(config['db_file'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -184,9 +185,18 @@ def home():
     queued_papers = QueuedPaper.query.order_by(
             QueuedPaper.priority, QueuedPaper.date_added.desc()).all()
     read_papers = ReadPaper.query.order_by(ReadPaper.date_read.desc()).all()
+    if 'focus' in session:
+        focus = session['focus']
+        focus_id = session['focus_id']
+        session.pop('focus', None)
+        session.pop('focus_id', None)
+    else:
+        focus = ''
+        focus_id = ''
     return flask.render_template(
             'index.html', queued_papers=queued_papers, read_papers=read_papers,
-            priorities=QUEUE_PRIORITIES, statuses=READ_STATUSES)
+            priorities=QUEUE_PRIORITIES, statuses=READ_STATUSES,
+            focus=focus, focus_id=focus_id)
 
 @app.route('/post_add_url', methods=['post'])
 def post_add_url():
@@ -197,6 +207,8 @@ def post_add_url():
         paper = QueuedPaper(priority=priority, **metadata)
         db.session.add(paper)
         db.session.commit()
+        session['focus'] = 'queued'
+        session['focus_id'] = paper.id
         return flask.redirect('/')
     paper = QueuedPaper(priority=priority, url=url)
     db.session.add(paper)
@@ -228,6 +240,8 @@ def post_edit_queued():
     paper.priority = flask.request.form['priority']
     paper.url = flask.request.form['url']
     db.session.commit()
+    session['focus'] = 'queued'
+    session['focus_id'] = paper.id
     return flask.redirect('/')
 
 @app.route('/add_read/<paper_id>', methods=['get'])
@@ -252,6 +266,8 @@ def post_add_read():
     db.session.delete(old_paper)
     db.session.add(new_paper)
     db.session.commit()
+    session['focus'] = 'read'
+    session['focus_id'] = new_paper.id
     return flask.redirect('/')
 
 @app.route('/delete_read', methods=['post'])
@@ -280,6 +296,8 @@ def post_edit_read():
     paper.url = flask.request.form['url']
     paper.note = flask.request.form['note']
     db.session.commit()
+    session['focus'] = 'read'
+    session['focus_id'] = paper.id
     return flask.redirect('/')
 
 
