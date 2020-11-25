@@ -29,13 +29,14 @@ Manager.prototype.key_down = function(event) {
             this.cur_nav.up();
         } else if (event.key == "j" || event.key == "ArrowDown") {
             this.cur_nav.down();
-        } else if (event.key == "f") {
+        } else if (event.key == "e") {
             this.cur_nav.open();
         } else if (event.key == "x") {
             this.cur_nav.delete();
-        } else if (event.key == "e") {
+        } else if (event.key == "s") {
             this.cur_nav.edit();
-        } else if (event.key == "Enter") {
+        //} else if (event.key == "Enter") {
+        } else if (event.key == "f") {
             this.cur_nav.read();
         } else if (event.key == "q") {
             this.focus_queued();
@@ -43,8 +44,8 @@ Manager.prototype.key_down = function(event) {
             this.focus_read();
         } else if(event.key == "n") {
             this.toggle_focus();
-        } else if(event.key == "n") {
-            this.toggle_focus();
+        } else if(event.key == "?") {
+            this.toggle_shortcuts_modal();
         }
     }
 }
@@ -73,6 +74,11 @@ Manager.prototype.toggle_focus = function() {
     } else {
         this.focus_queued();
     }
+}
+
+Manager.prototype.toggle_shortcuts_modal = function() {
+    var button = document.getElementById('modalShortcutsButton');
+    button.click();
 }
 
 function TableNavigator(table, index) {
