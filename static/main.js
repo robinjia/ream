@@ -23,19 +23,26 @@ Manager.prototype.key_down = function(event) {
     if (event.key == "Escape") {
         document.activeElement.blur();
     } else if (document.activeElement !== document.getElementById("linkbar")
-               && !event.ctrlKey) {
-        // Only do these if the linkbar is not in focus and control is not pressed
+               && !event.ctrlKey && !event.altKey && !event.metaKey) {
+        // Only do these if the linkbar is not in focus and ctrl/alt/cmd are not pressed
         if (event.key == "k" || event.key == "ArrowUp") {
-            this.cur_nav.up();
+            this.cur_nav.up(1);
         } else if (event.key == "j" || event.key == "ArrowDown") {
-            this.cur_nav.down();
+            this.cur_nav.down(1);
+        } else if (event.key == "u") {
+            this.cur_nav.up(5);
+        } else if (event.key == "d") {
+            this.cur_nav.down(5);
+        } else if (event.key == "g") {
+            this.cur_nav.move_to_top();
+        } else if (event.key == "G") {
+            this.cur_nav.move_to_bottom();
         } else if (event.key == "e") {
             this.cur_nav.open();
         } else if (event.key == "x") {
             this.cur_nav.delete();
         } else if (event.key == "s") {
             this.cur_nav.edit();
-        //} else if (event.key == "Enter") {
         } else if (event.key == "f") {
             this.cur_nav.read();
         } else if (event.key == "q") {
@@ -146,16 +153,26 @@ TableNavigator.prototype.focus_and_mark_by_paper_id = function(paper_id) {
     }
 }
 
-TableNavigator.prototype.up = function() { 
+TableNavigator.prototype.up = function(dx) {
     // Start at 1 because of the header row
-    if (this.index > 1) {
-        this.focus_and_mark(this.index - 1);
+    var new_index = this.index - dx;
+    if (new_index < 1) {
+        new_index = 1;
     }
+    this.focus_and_mark(new_index);
 }
-TableNavigator.prototype.down = function() { 
-    if (this.index < this.tbody.children.length - 1) {
-        this.focus_and_mark(this.index + 1);
+TableNavigator.prototype.down = function(dx) {
+    var new_index = this.index + dx;
+    if (new_index >= this.tbody.children.length) {
+        new_index = this.tbody.children.length - 1
     }
+    this.focus_and_mark(new_index);
+}
+TableNavigator.prototype.move_to_top = function() {
+    this.focus_and_mark(1);
+}
+TableNavigator.prototype.move_to_bottom = function() {
+    this.focus_and_mark(this.tbody.children.length - 1);
 }
 
 TableNavigator.prototype.click_button = function(class_name) {
