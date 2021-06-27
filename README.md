@@ -23,5 +23,11 @@ Edit `config.yaml` as appropriate.
 
 This creates an empty database in the location specified by `config.yaml`.
 
+4. Run the app (will use port 5538 by default)
+
+```
+python3 app.py
+```
+
 ## Credits
 Icons were taken from https://primer.style/octicons/.
