@@ -30,7 +30,8 @@ VENUES = [
 VENUE_NAME_MAP = {
         'NIPS': 'NeurIPS'  # Rename NIPS to NeurIPS but match on NIPS for backwards compatibility
 }
-ACL_ANTHOLOGY_REGEX = r'/anthology/([^/]*)/?'
+ACL_ANTHOLOGY_ACLWEB_REGEX = r'/anthology/([^/]*)/?'
+ACL_ANTHOLOGY_ORG_REGEX = r'/([^/]*)/?'
 
 app = Flask(__name__, root_path=util.ROOT_DIR)
 config = util.load_config()
@@ -115,7 +116,12 @@ def _parse_arxiv(arxiv_id):
     return metadata
 
 def _parse_acl_anthology_id(url):
-    match = re.match(ACL_ANTHOLOGY_REGEX, url.path)
+    if url.netloc.endswith('aclweb.org'):
+        match = re.match(ACL_ANTHOLOGY_ACLWEB_REGEX, url.path)
+    elif url.netloc.endswith('aclanthology.org'):
+        match = re.match(ACL_ANTHOLOGY_ORG_REGEX, url.path)
+    else:
+        return None
     if match:
         anthology_id = match.group(1)
         if anthology_id.endswith('.pdf'):
@@ -126,10 +132,10 @@ def _parse_acl_anthology_id(url):
 def _parse_acl_anthology(anthology_id):
     metadata = {
             'authors': [],
-            'url': 'https://www.aclweb.org/anthology/{}.pdf'.format(anthology_id),
+            'url': 'https://www.aclanthology.org/{}.pdf'.format(anthology_id),
     }
     # Use the MODS XML format for most things
-    with urllib.request.urlopen('https://www.aclweb.org/anthology/{}.xml'.format(anthology_id)) as url:
+    with urllib.request.urlopen('https://www.aclanthology.org/{}.xml'.format(anthology_id)) as url:
         xml = url.read()
     tree = ElementTree.fromstring(xml)
     for e in tree[0]:
@@ -152,12 +158,12 @@ def _parse_acl_anthology(anthology_id):
     metadata['authors'] = ', '.join(metadata['authors'])
 
     # Use the anthology main page for venue abbreviations
-    with urllib.request.urlopen('https://www.aclweb.org/anthology/{}'.format(anthology_id)) as url:
+    with urllib.request.urlopen('https://www.aclanthology.org/{}'.format(anthology_id)) as url:
         r = url.read()
     soup = BeautifulSoup(r, 'html.parser')
     links = soup.find_all('a')
     for link in links:
-        if link.get('href').startswith('/anthology/venues/'):
+        if link.get('href').startswith('/venues/'):
             metadata['venue'] = link.get_text()
             break
     return metadata
@@ -173,7 +179,7 @@ def get_metadata(raw_url):
         arxiv_id = _parse_arxiv_id(url)
         if arxiv_id:
             return _parse_arxiv(arxiv_id)
-    elif url.netloc.endswith('aclweb.org'):
+    elif url.netloc.endswith('aclweb.org') or url.netloc.endswith('aclanthology.org'):
         anthology_id = _parse_acl_anthology_id(url)
         print(anthology_id)
         if anthology_id:
