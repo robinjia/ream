@@ -14,6 +14,14 @@ main {
     padding: 0.5rem 1.25rem;
 }
 
+header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 10;
+    background: inherit;
+}
+
 nav.navbar {
     padding: 0.75rem 1.25rem;
     /* border-bottom: 1px solid #c0c0c0; */
@@ -28,6 +36,12 @@ nav.navbar {
 #linkbar {
     width: 500px;
     background-color: rgba(224, 224, 224, 0.9);
+}
+
+#content {
+    width: 100%;
+    z-index: 5;
+    overflow: auto;
 }
 
 span.keyboard-shortcut {
