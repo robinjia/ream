@@ -129,3 +129,11 @@ form.big-form {
 label {
     color: white;
 }
+
+.limit-lines {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 10;
+    -webkit-box-orient: vertical;
+}
