@@ -3,10 +3,14 @@ html {
 }
 
 body {
+    /*background-color: #004444;*/
+    background-image: linear-gradient(to right, #005522, #002255);
+    /*
     background-color: white;
     background-image: url("/static/redwoods.jpg");
     background-repeat: no-repeat;
     background-attachment: fixed;
+     */
     min-height: 100%;
 }
 
