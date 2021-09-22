@@ -42,12 +42,6 @@ nav.navbar {
     background-color: rgba(224, 224, 224, 0.9);
 }
 
-#content {
-    width: 100%;
-    z-index: 5;
-    overflow: auto;
-}
-
 span.keyboard-shortcut {
     background-color: #ffffcc;
     font-weight: bold;
