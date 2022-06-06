@@ -1,34 +1,33 @@
-{% extends "layout.html" %}
+{% extends "user_layout.html" %}
 
 {% block content %}
 <form action="/{{action}}" method="post" class="big-form">
     <input type="hidden" id="paper_id" name="paper_id" value="{{paper.id}}"/>
     <input type="hidden" id="date_added" name="date_added" value="{{paper.date_added.timestamp()}}"/>
-    <div class="form-row">
-        <div class="form-group col-md-6">
-            <label for="authors">Authors</label>
+    <div class="row mb-2 g-2">
+        <div class="col-md-6 form-floating">
             <input type="text" class="form-control" name="authors" id="authors" value="{{paper.authors}}">
+            <label for="authors" class="ms-1">Authors</label>
         </div>
-        <div class="form-group col-md-6">
-            <label for="title">Title</label>
+        <div class="col-md-6 form-floating">
             <input type="text" class="form-control" name="title" id="title" value="{{paper.title}}">
+            <label for="title" class="ms-1">Title</label>
         </div>
     </div>
-    <div class="form-row">
-        <div class="form-group col-md-6">
-            <label for="url">URL</label>
+    <div class="row mb-2 g-2">
+        <div class="col-md-6 form-floating">
             <input type="text" class="form-control" name="url" id="url" value="{{paper.url}}">
+            <label for="url" class="ms-1">URL</label>
         </div>
-        <div class="form-group col-md-2">
-            <label for="venue">Venue</label>
+        <div class="col-sm-2 form-floating">
             <input type="text" class="form-control" name="venue" id="venue" value="{{paper.venue}}">
+            <label for="venue" class="ms-1">Venue</label>
         </div>
-        <div class="form-group col-md-2">
-            <label for="year">Year</label>
+        <div class="col-sm-2 form-floating">
             <input type="text" class="form-control" name="year" id="year" value="{{paper.year}}">
+            <label for="year" class="ms-1">Year</label>
         </div>
-        <div class="form-group col-md-2">
-            <label for="status">Status</label>
+        <div class="col-sm-2 form-floating">
             <select name="status" id="status" class="form-control">
                 {% for status in statuses %} 
                 {% if loop.index0 == 0 and not paper.status or paper.status == loop.index0 %}
@@ -38,11 +37,14 @@
                 {% endif %}
                 {% endfor %}
             </select>
+            <label for="status" class="ms-1">Status</label>
         </div>
     </div>
-    <div class="form-group">
-        <label for="note">Notes</label>
-        <textarea class="form-control" name="note" id="note" rows="5">{{paper.note if paper.note else ''}}</textarea>
+    <div class="row mb-2 g-2">
+		<div class="col-md-12 form-floating">
+			<textarea class="form-control" name="note" id="note" rows="7" style="height:100%;">{{paper.note if paper.note else ''}}</textarea>
+			<label for="note" class="ms-1">Notes</label>
+        </div>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

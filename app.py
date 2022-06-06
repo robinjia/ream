@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Ream: A Paper Manager."""
 import argparse
+import bcrypt
 from bs4 import BeautifulSoup
 from datetime import datetime
 import flask
 from flask import Flask, request, session
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 import re
 import sys
@@ -19,7 +21,8 @@ READ_STATUSES = ['Intro', 'Partial', 'Skim', 'Read']
 # Paper metadata parsing
 ARXIV_REGEX = r'/[a-z]+/([0-9]+\.[0-9]+)([^0-9].*)?'
 VENUES = [
-        'ACL', 'TACL', 'Findings of EMNLP', 'EMNLP', 'NAACL', 'EACL', 'AACL', 'CoNLL', 'COLING', 'LREC' # NLP
+        'Findings of ACL', 'Findings of EMNLP', 'Findings of NAACL',  # NLP Findings
+        'TACL', 'ACL', 'EMNLP', 'NAACL', 'EACL', 'AACL', 'CoNLL', 'COLING', 'LREC' # NLP
         'ICML', 'NIPS', 'NeurIPS', 'ICLR', 'JMLR', 'COLT', 'UAI', 'AISTATS', 'ECML' # ML
         'AAAI', 'IJCAI', 'JAIR', # AI
         'CVPR', 'ICCV', 'ECCV',  # CV
@@ -39,9 +42,18 @@ app.config['SECRET_KEY'] = config['secret_key']
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(config['db_file'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+    queued_papers = db.relationship('QueuedPaper', backref='user', lazy=True)
+    read_papers = db.relationship('ReadPaper', backref='user', lazy=True)
 
 class QueuedPaper(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     authors = db.Column(db.String(1024), default='')
     title = db.Column(db.String(1024), default='')
     venue = db.Column(db.String(1024), default='')
@@ -52,6 +64,7 @@ class QueuedPaper(db.Model):
 
 class ReadPaper(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     authors = db.Column(db.String(1024))
     title = db.Column(db.String(1024))
     venue = db.Column(db.String(1024))
@@ -186,59 +199,128 @@ def get_metadata(raw_url):
             return _parse_acl_anthology(anthology_id)
     return None
 
+def get_paper(model, paper_id):
+    """Get paper, checking for user permissions.
+
+    Returns None if user is not logged in.
+    Aborts with 403 error if logged in as wrong user.
+    Aborts with 404 error if paper is not found.
+    """
+    if 'user_id' not in flask.session:
+        return None
+    user_id = flask.session['user_id']
+    paper = model.query.get(paper_id)
+    if not paper:
+        flask.abort(404)
+    if paper.user_id != user_id:
+        flask.abort(403)
+    return paper
+
 @app.route('/', methods=['get'])
 def home():
-    queued_papers = QueuedPaper.query.order_by(
-            QueuedPaper.priority, QueuedPaper.date_added.desc()).all()
-    read_papers = ReadPaper.query.order_by(ReadPaper.date_read.desc()).all()
-    if 'focus' in session:
-        focus = session['focus']
-        focus_id = session['focus_id']
-        session.pop('focus', None)
-        session.pop('focus_id', None)
+    if 'user_id' in flask.session:
+        user = User.query.get(flask.session['user_id'])
+        queued_papers = QueuedPaper.query.filter_by(user_id=user.id).order_by(
+                QueuedPaper.priority, QueuedPaper.date_added.desc()).all()
+        read_papers = ReadPaper.query.filter_by(user_id=user.id).order_by(
+                ReadPaper.date_read.desc()).all()
+        if 'focus' in session:
+            focus = session['focus']
+            focus_id = session['focus_id']
+            session.pop('focus', None)
+            session.pop('focus_id', None)
+        else:
+            focus = ''
+            focus_id = ''
+        return flask.render_template(
+                'home.html', queued_papers=queued_papers, read_papers=read_papers,
+                priorities=QUEUE_PRIORITIES, statuses=READ_STATUSES,
+                focus=focus, focus_id=focus_id)
     else:
-        focus = ''
-        focus_id = ''
-    return flask.render_template(
-            'index.html', queued_papers=queued_papers, read_papers=read_papers,
-            priorities=QUEUE_PRIORITIES, statuses=READ_STATUSES,
-            focus=focus, focus_id=focus_id)
+        return flask.render_template('login.html')
+
+@app.route('/post_login', methods=['post'])
+def post_login():
+    username = flask.request.form['username']
+    password = flask.request.form['password']
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flask.flash('Error: Username not found.')
+        return flask.render_template('login.html')
+    if not bcrypt.checkpw(password.encode(), user.password_hash):
+        flask.flash('Error: Username and password did not match.')
+        return flask.render_template('login.html')
+    flask.session['user_id'] = user.id
+    return flask.redirect('/')
+
+@app.route('/post_logout', methods=['post'])
+def post_logout():
+    flask.session.pop('user_id', None)
+    return flask.redirect('/')
+
+@app.route('/add_user', methods=['get'])
+def add_user():
+    return flask.render_template('adduser.html')
+
+@app.route('/post_add_user', methods=['post'])
+def post_add_user():
+    username = flask.request.form['username']
+    password = flask.request.form['password']
+    if not username:
+        flask.flash('Error: Username cannot be empty.')
+        return flask.render_template('adduser.html')
+    if not password:
+        flask.flash('Error: Password cannot be empty.')
+        return flask.render_template('adduser.html')
+    password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+    user = User(username=username, password_hash=password_hash)
+    db.session.add(user)
+    db.session.commit()
+    flask.session['user_id'] = user.id
+    return flask.redirect('/')
 
 @app.route('/post_add_url', methods=['post'])
 def post_add_url():
+    if 'user_id' not in flask.session:
+        return flask.redirect('/')
+    user_id = flask.session['user_id']
     priority = int(flask.request.form['priority'])
     url = flask.request.form['url']
     metadata = get_metadata(url)
     if metadata:
-        paper = QueuedPaper(priority=priority, **metadata)
+        paper = QueuedPaper(user_id=user_id, priority=priority, **metadata)
         db.session.add(paper)
         db.session.commit()
         session['focus'] = 'queued'
         session['focus_id'] = paper.id
         return flask.redirect('/')
-    paper = QueuedPaper(priority=priority, url=url)
+    paper = QueuedPaper(user_id=user_id, priority=priority, url=url)
     db.session.add(paper)
     db.session.commit()
     return flask.redirect('/edit_queued/{}'.format(paper.id))
 
 @app.route('/delete_queued', methods=['post'])
 def delete_queued():
-    paper_id = int(flask.request.form['paper_id'])
-    paper = QueuedPaper.query.get(paper_id)
+    paper = get_paper(QueuedPaper, int(flask.request.form['paper_id']))
+    if not paper:
+        return flask.redirect('/')
     db.session.delete(paper)
     db.session.commit()
     return flask.redirect('/')
 
 @app.route('/edit_queued/<paper_id>', methods=['get'])
 def edit_queued(paper_id):
-    paper = QueuedPaper.query.get(paper_id)
+    paper = get_paper(QueuedPaper, paper_id)
+    if not paper:
+        return flask.redirect('/')
     return flask.render_template(
         'queued.html', paper=paper, priorities=QUEUE_PRIORITIES)
 
 @app.route('/post_edit_queued', methods=['post'])
 def post_edit_queued():
-    paper_id = int(flask.request.form['paper_id'])
-    paper = QueuedPaper.query.get(paper_id)
+    paper = get_paper(QueuedPaper, int(flask.request.form['paper_id']))
+    if not paper:
+        return flask.redirect('/')
     paper.authors = flask.request.form['authors']
     paper.title = flask.request.form['title']
     paper.venue = flask.request.form['venue']
@@ -252,15 +334,19 @@ def post_edit_queued():
 
 @app.route('/add_read/<paper_id>', methods=['get'])
 def add_read(paper_id):
-    paper = QueuedPaper.query.get(paper_id)
+    paper = get_paper(QueuedPaper, paper_id)
+    if not paper:
+        return flask.redirect('/')
     return flask.render_template(
             'read.html', paper=paper, statuses=READ_STATUSES, action='post_add_read')
 
 @app.route('/post_add_read', methods=['post'])
 def post_add_read():
-    paper_id = int(flask.request.form['paper_id'])
-    old_paper = QueuedPaper.query.get(paper_id)
+    old_paper = get_paper(QueuedPaper, int(flask.request.form['paper_id']))
+    if not old_paper:
+        return flask.redirect('/')
     new_paper = ReadPaper(
+            user_id = flask.session['user_id'],
             authors=flask.request.form['authors'],
             title=flask.request.form['title'],
             venue=flask.request.form['venue'],
@@ -278,22 +364,26 @@ def post_add_read():
 
 @app.route('/delete_read', methods=['post'])
 def delete_read():
-    paper_id = int(flask.request.form['paper_id'])
-    paper = ReadPaper.query.get(paper_id)
+    paper = get_paper(ReadPaper, int(flask.request.form['paper_id']))
+    if not paper:
+        return flask.redirect('/')
     db.session.delete(paper)
     db.session.commit()
     return flask.redirect('/')
 
 @app.route('/edit_read/<paper_id>', methods=['get'])
 def edit_read(paper_id):
-    paper = ReadPaper.query.get(paper_id)
+    paper = get_paper(ReadPaper, paper_id)
+    if not paper:
+        return flask.redirect('/')
     return flask.render_template(
             'read.html', paper=paper, statuses=READ_STATUSES, action='post_edit_read')
 
 @app.route('/post_edit_read', methods=['post'])
 def post_edit_read():
-    paper_id = int(flask.request.form['paper_id'])
-    paper = ReadPaper.query.get(paper_id)
+    paper = get_paper(ReadPaper, int(flask.request.form['paper_id']))
+    if not paper:
+        return flask.redirect('/')
     paper.authors = flask.request.form['authors']
     paper.title = flask.request.form['title']
     paper.venue = flask.request.form['venue']
@@ -305,7 +395,6 @@ def post_edit_read():
     session['focus'] = 'read'
     session['focus_id'] = paper.id
     return flask.redirect('/')
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Launch a Ream server.')

@@ -1,12 +1,23 @@
 #!/usr/bin/env python3
+import bcrypt
 from datetime import datetime
 import pytz
 
-from app import db, QueuedPaper, ReadPaper
+from app import db, User, QueuedPaper, ReadPaper
 
 db.create_all()
 timestamp = datetime.now(pytz.timezone('America/Los_Angeles'))
+
+# Add user first to create the user ID
+u1 = User(
+        username='user',
+        password_hash = bcrypt.hashpw('testpassword'.encode(), bcrypt.gensalt()))
+db.session.add(u1)
+db.session.commit()
+
+# Now add papers
 q1 = QueuedPaper(
+        user_id = u1.id,
         authors='Alice', 
         title='Towards Being Alice', 
         venue='ICML', 
@@ -14,6 +25,7 @@ q1 = QueuedPaper(
         priority=0,
         url='https://icons.getbootstrap.com/icons/book/')
 r1 = ReadPaper(
+        user_id = u1.id,
         authors='Bob',
         title='Bobology',
         venue='ACL',

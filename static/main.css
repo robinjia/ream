@@ -4,7 +4,8 @@ html {
 
 body {
     /*background-color: #004444;*/
-    background-image: linear-gradient(to right, #005522, #002255);
+    /* background-image: linear-gradient(to right, #005522, #002255); */
+    background-color: #99BBCC;
     /*
     background-color: white;
     background-image: url("/static/redwoods.jpg");
@@ -18,6 +19,44 @@ main {
     padding: 0.5rem 1.25rem;
 }
 
+/* Login and adduser page stuff */
+body.body-login {
+    display: flex;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+main.login {
+    padding-top: 50px;
+    max-width: 330px;
+}
+
+/*
+main.login h3, p {
+    color: white;
+}
+*/
+
+#input-username {
+    margin-top: 10px;
+    margin-bottom: 2px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+#input-password {
+    margin-bottom: 10px;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.error-box {
+    border: 1px solid #660000;
+    background-color: #FFBBBB;
+    padding: 10px;
+}
+
+/* End login page stuff */
+
 header {
     position: sticky;
     top: 0;
@@ -26,15 +65,11 @@ header {
     background: inherit;
 }
 
-nav.navbar {
-    padding: 0.75rem 1.25rem;
-    /* border-bottom: 1px solid #c0c0c0; */
-}
-
 .navbar-brand {
     font-size: 1.5rem;
     line-height: 1;
-    color: white;
+    margin-right: 10px;
+    margin-left: 5px;
 }
 
 #linkbar {
@@ -89,10 +124,11 @@ a.link-title {
     background-color: #cceeff;
 }
 .icon-header {
-    fill: white;
+    fill: black;
+    padding: 5px;
 }
 .icon-header:hover, .icon-header:active, .icon-header.active {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0.3);
 }
 
 .label {
@@ -136,10 +172,6 @@ form.big-form {
     /* Matches what .row sets in index.html */
     margin-left: -15px;
     margin-right: -15px;
-}
-
-label {
-    color: white;
 }
 
 .limit-lines {
