@@ -2,6 +2,5 @@ bcrypt
 beautifulsoup4
 flask
 Flask-SQLAlchemy
-Flask-Migrate
 pytz
 PyYaml

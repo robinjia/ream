@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import flask
 from flask import Flask, request, session
-from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 import re
 import sys
@@ -42,7 +41,6 @@ app.config['SECRET_KEY'] = config['secret_key']
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(config['db_file'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
