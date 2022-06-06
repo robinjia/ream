@@ -95,11 +95,11 @@ tr.header{
 tr {
     border-top: 1px solid black;
     border-bottom: 1px solid black;
-    background-color: rgba(192, 192, 192, 0.9);
+    background-color: rgba(192, 192, 192, 0.8);
 }
 
 tr.highlighted-row {
-    background-color: rgba(192, 192, 255, 0.9);
+    background-color: rgba(192, 220, 192, 0.8);
 }
 
 th:first-child {

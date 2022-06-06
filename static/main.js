@@ -117,7 +117,7 @@ TableNavigator.prototype.mark = function(index, focus) {
         if (rect.bottom > window.innerHeight) {
             // Scroll down
             window.scrollTo(window.scrollX, window.scrollY + rect.bottom - window.innerHeight + 5);
-        } else if (rect.top < 0) {
+        } else if (rect.top < 0 || window.scrollY + rect.top < 200) {
             if (window.scrollY + rect.top < 200) {
                 // Just scroll to top of page
                 window.scrollTo(window.scrollX, 0);
