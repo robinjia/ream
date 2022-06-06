@@ -109,28 +109,30 @@ TableNavigator.prototype.init = function(manager, focus_func) {
 
 TableNavigator.prototype.mark = function(index, focus) { 
     var row = this.tbody.children[index];
+    document.querySelector('html').classList.add('scroll-auto');
     if (focus) {
         row.classList.add("highlighted-row");
         var rect = row.getBoundingClientRect();
         console.log(rect)
         if (rect.bottom > window.innerHeight) {
             // Scroll down
-            row.scrollIntoView(false);
+            window.scrollTo(window.scrollX, window.scrollY + rect.bottom - window.innerHeight + 5);
         } else if (rect.top < 0) {
             if (window.scrollY + rect.top < 200) {
                 // Just scroll to top of page
                 window.scrollTo(window.scrollX, 0);
             } else if (index == 1) {
                 // Scroll to the top of the table
-                this.tbody.children[0].scrollIntoView(true);
+                window.scrollTo(window.scrollX, window.scrollY + this.tbody.children[0].getBoundingClientRect().top - 55)
             } else {
                 // Scroll up
-                row.scrollIntoView(true);
+                window.scrollTo(window.scrollX, window.scrollY + rect.top - 55);
             }
         }
     } else {
         row.classList.remove("highlighted-row");
     }
+    document.querySelector('html').classList.remove('scroll-auto');
 }
 
 TableNavigator.prototype.set_focus = function(focus) { 
