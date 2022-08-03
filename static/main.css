@@ -193,4 +193,5 @@ div.scrollable {
     padding: 0;
     overflow: auto;
     max-height: 250px;
+    white-space: pre-wrap;
 }
