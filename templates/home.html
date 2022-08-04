@@ -122,7 +122,7 @@
             <td>{{p.year}}</td>
             <td class="text-center"><div class="label status-{{p.status}}">{{statuses[p.status]}}</div></td>
             <td class="timestamp" data-timestamp="{{p.date_read.timestamp() * 1000}}"></td>
-            <td>{{p.note if p.note else ''}}</td>
+            <td><div class="scrollable">{{p.note if p.note else ''}}</div></td>
         </tr>
         {% endfor %}
     </table>
