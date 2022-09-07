@@ -43,6 +43,8 @@ Manager.prototype.key_down = function(event) {
             this.cur_nav.delete();
         } else if (event.key == "s") {
             this.cur_nav.edit();
+        } else if (event.key == "y") {
+            this.cur_nav.copy();
         } else if (event.key == "f") {
             this.cur_nav.read();
         } else if (event.key == "q") {
@@ -109,6 +111,7 @@ TableNavigator.prototype.init = function(manager, focus_func) {
 
 TableNavigator.prototype.mark = function(index, focus) { 
     var row = this.tbody.children[index];
+    if (!row) return;
     document.querySelector('html').classList.add('scroll-auto');
     if (focus) {
         row.classList.add("highlighted-row");
@@ -196,4 +199,23 @@ TableNavigator.prototype.edit = function() {
 }
 TableNavigator.prototype.read = function() { 
     this.click_button("read-button");
+}
+TableNavigator.prototype.copy = function() { 
+    this.click_button("copy-button");
+}
+
+function do_copy(e) {
+    console.log(e);
+    var tr = e.closest("tr");
+    console.log(tr);
+    var authors = tr.children[1].textContent;
+    var title = tr.children[2].textContent;
+    var url = tr.children[2].querySelector("a").href;
+    var notes = tr.children[7].textContent;
+    console.log(authors)
+    console.log(title)
+    console.log(url)
+    console.log(notes)
+    var combined = title + "\n" + authors + "\n" + url + "\n\n" + notes
+    navigator.clipboard.writeText(combined);
 }
