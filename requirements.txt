@@ -1,6 +1,8 @@
 bcrypt
 beautifulsoup4
 flask
-Flask-SQLAlchemy
+Flask-SQLAlchemy==2.5.1
 pytz
 PyYaml
+uwsgi
+wheel
