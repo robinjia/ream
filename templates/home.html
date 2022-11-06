@@ -122,13 +122,17 @@
                 </div>
                 </div>
             </td>
-            <td><div class="limit-lines">{{p.authors}}</div></td>
+            <td><div class="scrollable">{{p.authors}}</div></td>
             <td><a href="{{p.url}}" target="_blank" class="link-title">{{p.title}}</a></td>
             <td>{{p.venue}}</td>
             <td>{{p.year}}</td>
             <td class="text-center"><div class="label status-{{p.status}}">{{statuses[p.status]}}</div></td>
             <td class="timestamp" data-timestamp="{{p.date_read.timestamp() * 1000}}"></td>
-            <td><div class="scrollable">{{p.note if p.note else ''}}</div></td>
+            <td><div class="scrollable">
+{% filter markdown %}
+{{p.note if p.note else ''}}
+{% endfilter %}
+              </div></td>
         </tr>
         {% endfor %}
     </table>

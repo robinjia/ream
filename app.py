@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import flask
 from flask import Flask, request, session
+from flaskext.markdown import Markdown
 from flask_sqlalchemy import SQLAlchemy
 import re
 import sys
@@ -36,6 +37,7 @@ ACL_ANTHOLOGY_ACLWEB_REGEX = r'/anthology/([^/]*)/?'
 ACL_ANTHOLOGY_ORG_REGEX = r'/([^/]*)/?'
 
 app = Flask(__name__, root_path=util.ROOT_DIR)
+Markdown(app)
 config = util.load_config()
 app.config['SECRET_KEY'] = config['secret_key']
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(config['db_file'])
