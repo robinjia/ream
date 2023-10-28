@@ -8,8 +8,10 @@ import flask
 from flask import Flask, request, session
 from flaskext.markdown import Markdown
 from flask_sqlalchemy import SQLAlchemy
+import logging
 import re
 import sys
+import time
 import urllib
 from xml.etree import ElementTree
 
@@ -43,6 +45,7 @@ app.config['SECRET_KEY'] = config['secret_key']
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(config['db_file'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+logging.basicConfig(format='[%(asctime)s] %(message)s', filename='/tmp/ream_app_log', level=logging.DEBUG)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -219,11 +222,14 @@ def get_paper(model, paper_id):
 @app.route('/', methods=['get'])
 def home():
     if 'user_id' in flask.session:
+        t0 = time.time()
         user = User.query.get(flask.session['user_id'])
         queued_papers = QueuedPaper.query.filter_by(user_id=user.id).order_by(
                 QueuedPaper.priority, QueuedPaper.date_added.desc()).all()
         read_papers = ReadPaper.query.filter_by(user_id=user.id).order_by(
                 ReadPaper.date_read.desc()).all()
+        t1 = time.time()
+        logging.debug('Query time: {}s'.format(t1 - t0))
         if 'focus' in session:
             focus = session['focus']
             focus_id = session['focus_id']
