@@ -45,7 +45,12 @@ app.config['SECRET_KEY'] = config['secret_key']
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(config['db_file'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-logging.basicConfig(format='[%(asctime)s] %(message)s', filename='/tmp/ream_app_log', level=logging.DEBUG)
+
+# Logging
+LOG_FILE = None
+if 'log_file' in config:
+    LOG_FILE = config['log_file']
+logging.basicConfig(format='[%(asctime)s] %(message)s', filename=None, level=logging.DEBUG)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -229,7 +234,6 @@ def home():
         read_papers = ReadPaper.query.filter_by(user_id=user.id).order_by(
                 ReadPaper.date_read.desc()).all()
         t1 = time.time()
-        logging.debug('Query time: {}s'.format(t1 - t0))
         if 'focus' in session:
             focus = session['focus']
             focus_id = session['focus_id']
@@ -238,10 +242,15 @@ def home():
         else:
             focus = ''
             focus_id = ''
-        return flask.render_template(
+        t2 = time.time()
+        print(len(queued_papers), len(read_papers))
+        rendered = flask.render_template(
                 'home.html', queued_papers=queued_papers, read_papers=read_papers,
                 priorities=QUEUE_PRIORITIES, statuses=READ_STATUSES,
                 focus=focus, focus_id=focus_id)
+        t3 = time.time()
+        logging.debug(f'query={t1-t0:.4f}s, focus={t2-t1:.4f}s, render={t3-t2:.4f}s')
+        return rendered
     else:
         return flask.render_template('login.html')
 
