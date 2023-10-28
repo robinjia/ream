@@ -50,7 +50,7 @@ db = SQLAlchemy(app)
 LOG_FILE = None
 if 'log_file' in config:
     LOG_FILE = config['log_file']
-logging.basicConfig(format='[%(asctime)s] %(message)s', filename=None, level=logging.DEBUG)
+logging.basicConfig(format='[%(asctime)s] %(message)s', filename=LOG_FILE, level=logging.DEBUG)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
