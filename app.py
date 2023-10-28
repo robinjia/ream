@@ -6,9 +6,9 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import flask
 from flask import Flask, request, session
-from flaskext.markdown import Markdown
 from flask_sqlalchemy import SQLAlchemy
 import logging
+import markdown
 import re
 import sys
 import time
@@ -39,7 +39,6 @@ ACL_ANTHOLOGY_ACLWEB_REGEX = r'/anthology/([^/]*)/?'
 ACL_ANTHOLOGY_ORG_REGEX = r'/([^/]*)/?'
 
 app = Flask(__name__, root_path=util.ROOT_DIR)
-Markdown(app)
 config = util.load_config()
 app.config['SECRET_KEY'] = config['secret_key']
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(config['db_file'])
@@ -242,14 +241,15 @@ def home():
         else:
             focus = ''
             focus_id = ''
+        md = markdown.Markdown()
+        notes = [md.convert(p.note) if p.note else '' for p in read_papers]
         t2 = time.time()
-        print(len(queued_papers), len(read_papers))
         rendered = flask.render_template(
                 'home.html', queued_papers=queued_papers, read_papers=read_papers,
                 priorities=QUEUE_PRIORITIES, statuses=READ_STATUSES,
-                focus=focus, focus_id=focus_id)
+                focus=focus, focus_id=focus_id, notes=notes)
         t3 = time.time()
-        logging.debug(f'query={t1-t0:.4f}s, focus={t2-t1:.4f}s, render={t3-t2:.4f}s')
+        logging.debug(f'query={t1-t0:.4f}s, markdown={t2-t1:.4f}s, render={t3-t2:.4f}s')
         return rendered
     else:
         return flask.render_template('login.html')

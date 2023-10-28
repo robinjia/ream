@@ -1,7 +1,6 @@
 bcrypt
 beautifulsoup4
 flask
-Flask-Markdown
 Flask-SQLAlchemy==2.5.1
 pytz
 PyYaml

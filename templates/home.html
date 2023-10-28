@@ -161,7 +161,7 @@
             <td>{{p.year}}</td>
             <td class="text-center"><div class="label status-{{p.status}}">{{statuses[p.status]}}</div></td>
             <td class="timestamp" data-timestamp="{{p.date_read.timestamp() * 1000}}"></td>
-            <td><div class="scrollable notes">{% filter markdown %} {{p.note if p.note else ''}} {% endfilter %} </div></td>
+            <td><div class="scrollable notes">{{notes[loop.index0] | safe}}</div></td>
         </tr>
         {% endfor %}
     </table>
